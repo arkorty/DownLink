@@ -1,0 +1,36 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Test binary, build output, and coverage files
+*.test
+*.out
+*.cover
+*.prof
+*.fuzz
+
+# Vendor directory
+/vendor/
+
+# IDE/editor-specific files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# GoLand files
+*.iml
+*.ipr
+*.iws
+
+# Log files
+*.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
