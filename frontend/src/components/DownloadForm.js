@@ -58,18 +58,13 @@ const DownloadForm = () => {
     return "bg-blue-500"; // Default color when not processing
   };
 
-  const getBarStyle = () => {
-    if (message === "Download complete" || message === "Download failed") {
-      return { transition: "width 0.5s ease-in-out" };
-    }
-    return { transition: "width 0.5s ease-in-out" };
-  };
+  const getBarStyle = () => ({
+    transition: "width 0.5s ease-in-out",
+  });
 
   const getAnimationStyle = () => {
-    if (message === "Download complete" || message === "Download failed") {
-      return { animation: "none" };
-    }
-    return { animation: "loading 1.5s infinite" };
+    // Hide the loading animation when progress is greater than 0
+    return progress === 0 ? { animation: "loading 1.5s infinite" } : {};
   };
 
   useEffect(() => {
@@ -136,7 +131,7 @@ const DownloadForm = () => {
             ...getBarStyle(),
           }}
         ></div>
-        {isProcessing && (
+        {isProcessing && progress === 0 && (
           <div
             className={`absolute top-0 left-0 w-full h-full bg-blue-300 rounded-full`}
             style={getAnimationStyle()}
