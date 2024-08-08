@@ -24,7 +24,7 @@ type VideoDownloadRequest struct {
 func getBestFormats(url string, targetResolution string) (string, string, error) {
     log.Printf("Getting best formats for URL: %s, target resolution: %s", url, targetResolution)
 
-    cmd := exec.Command("yt-dlp", "--list-formats", url)
+    cmd := exec.Command("yt-dlp", "--cookies", "cookies.txt", "--list-formats", url)
     output, err := cmd.CombinedOutput()
     if err != nil {
         return "", "", fmt.Errorf("failed to list formats: %v\nOutput: %s", err, string(output))
@@ -93,13 +93,13 @@ func downloadVideo(c echo.Context) error {
     outputPath := filepath.Join(tmpDir, fmt.Sprintf("output_%s.mp4", uid))
 
     // Download video
-    cmdVideo := exec.Command("yt-dlp", "-f", videoFormat, "-o", videoPath, req.URL)
+    cmdVideo := exec.Command("yt-dlp", "--cookies", "cookies.txt", "-f", videoFormat, "-o", videoPath, req.URL)
     if err := cmdVideo.Run(); err != nil {
         return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to download video: %v", err))
     }
 
     // Download audio
-    cmdAudio := exec.Command("yt-dlp", "-f", audioFormat, "-o", audioPath, req.URL)
+    cmdAudio := exec.Command("yt-dlp", "--cookies", "cookies.txt", "-f", audioFormat, "-o", audioPath, req.URL)
     if err := cmdAudio.Run(); err != nil {
         return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to download audio: %v", err))
     }
