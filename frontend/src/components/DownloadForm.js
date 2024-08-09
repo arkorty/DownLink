@@ -5,7 +5,7 @@ import Confetti from "react-confetti";
 
 const DownloadForm = () => {
   const [url, setUrl] = useState("");
-  const [quality, setQuality] = useState("480p");
+  const [quality, setQuality] = useState("360p");
   const [message, setMessage] = useState("");
   const [progress, setProgress] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -96,43 +96,52 @@ const DownloadForm = () => {
   return (
     <div className="p-4 relative">
       <form onSubmit={handleDownload} className="space-y-4">
-        <div>
-          <label
-            htmlFor="url"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Video URL
-          </label>
-          <input
-            type="text"
-            id="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            placeholder="Enter video URL"
-          />
+        <div className="flex gap-2">
+          <div className="flex-grow">
+            <label
+              htmlFor="url"
+              className="block text-sm font-medium text-gray-700 text-left"
+            >
+              Video URL
+            </label>
+            <input
+              type="text"
+              id="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="Enter video URL"
+            />
+          </div>
+          <div className="flex-shrink-0 w-18">
+            <label
+              htmlFor="quality"
+              className="block text-sm font-medium text-gray-700 text-left"
+            >
+              Quality
+            </label>
+            <select
+              id="quality"
+              value={quality}
+              onChange={(e) => setQuality(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            >
+              <option value="360p">Normal</option>
+              <option value="480p">High</option>
+              <option value="720p">Highest</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <label
-            htmlFor="quality"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Quality
-          </label>
-          <select
-            id="quality"
-            value={quality}
-            onChange={(e) => setQuality(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          >
-            <option value="360p">360p</option>
-            <option value="480p">480p</option>
-            <option value="720p">720p</option>
-          </select>
-        </div>
-        <div className="w-full bg-white rounded-full mt-4 h-4 relative overflow-hidden">
+
+        <div
+          className={`w-full bg-white rounded-lg mt-4 h-6 relative overflow-hidden ${
+            progress > 0 || (isProcessing && progress === 0)
+              ? "border border-gray-300"
+              : ""
+          }`}
+        >
           <div
-            className={`h-4 ${getBarClass()} rounded-full`}
+            className={`h-full ${getBarClass()} rounded-lg`}
             style={{
               width: `${progress}%`,
               ...getBarStyle(),
@@ -154,12 +163,14 @@ const DownloadForm = () => {
             </span>
           </div>
         </div>
+
         <div className="flex justify-center">
           {!isProcessing && !message.startsWith("Downloading") && (
             <button
               type="submit"
-              className="inline-flex items-center px-8 py-4 border border-transparent text-lg font-bold rounded-lg shadow-lg text-white bg-black hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="relative inline-flex items-center px-8 py-4 border border-transparent text-lg font-bold rounded-lg text-white bg-gradient-to-r from-cyan-500 via-green-500 to-blue-500 hover:shadow-lg focus:outline-none animate-gradient"
             >
+              <span className="absolute inset-0 bg-black opacity-0 transition-opacity duration-300 ease-in-out active:opacity-40 rounded-lg"></span>
               Download
             </button>
           )}
@@ -183,6 +194,23 @@ const DownloadForm = () => {
           100% {
             transform: translateX(100%);
           }
+        }
+
+        @keyframes gradientFlow {
+          0% {
+            background-position: 0% 0%;
+          }
+          50% {
+            background-position: 100% 100%;
+          }
+          100% {
+            background-position: 0% 0%;
+          }
+        }
+
+        .animate-gradient {
+          background-size: 300% 300%;
+          animation: gradientFlow 15s ease infinite;
         }
       `}</style>
     </div>
