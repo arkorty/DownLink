@@ -5,15 +5,30 @@ import Confetti from "react-confetti";
 
 const DownloadForm = () => {
   const [url, setUrl] = useState("");
-  const [quality, setQuality] = useState("720p");
+  const [quality, setQuality] = useState("480p");
   const [message, setMessage] = useState("");
   const [progress, setProgress] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const confettiRef = useRef(null);
 
+  // Validate if the URL is a YouTube domain
+  const isValidYouTubeUrl = (url) => {
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
+    return youtubeRegex.test(url);
+  };
+
   const handleDownload = async (e) => {
     e.preventDefault();
+
+    if (!url) {
+      setMessage("maybe enter an URL first");
+      return;
+    } else if (!isValidYouTubeUrl(url)) {
+      setMessage("doesn't look like YouTube to me");
+      return;
+    }
+
     setMessage("Processing...");
     setProgress(0);
     setIsProcessing(true);
@@ -28,6 +43,7 @@ const DownloadForm = () => {
             const total = progressEvent.total;
             const current = progressEvent.loaded;
             setProgress(Math.round((current / total) * 100));
+            setMessage("Downloading...");
           },
         },
       );
@@ -42,19 +58,19 @@ const DownloadForm = () => {
       link.download = filename;
       link.click();
 
-      setMessage("Download complete");
+      setMessage("Download Complete");
       setIsProcessing(false);
       setShowConfetti(true);
     } catch (error) {
-      setMessage("Download failed");
+      setMessage("Download Failed");
       console.error(error);
       setIsProcessing(false);
     }
   };
 
   const getBarClass = () => {
-    if (message === "Download complete") return "bg-green-500";
-    if (message === "Download failed") return "bg-red-500";
+    if (message === "Download Complete") return "bg-green-500";
+    if (message === "Download Failed") return "bg-red-500";
     return "bg-blue-500"; // Default color when not processing
   };
 
@@ -109,35 +125,47 @@ const DownloadForm = () => {
             onChange={(e) => setQuality(e.target.value)}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           >
+            <option value="360p">360p</option>
             <option value="480p">480p</option>
             <option value="720p">720p</option>
-            <option value="1080p">1080p</option>
           </select>
         </div>
-        <div>
-          <button
-            type="submit"
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-black hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            Download
-          </button>
+        <div className="w-full bg-white rounded-full mt-4 h-4 relative overflow-hidden">
+          <div
+            className={`h-4 ${getBarClass()} rounded-full`}
+            style={{
+              width: `${progress}%`,
+              ...getBarStyle(),
+            }}
+          ></div>
+          {isProcessing && progress === 0 && (
+            <div
+              className={`absolute top-0 left-0 w-full h-full bg-blue-500 rounded-full`}
+              style={getAnimationStyle()}
+            ></div>
+          )}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span
+              className={`text-xs ${
+                message === "Download Failed" ? "text-white" : "text-black"
+              }`}
+            >
+              {message}
+            </span>
+          </div>
+        </div>
+        <div className="flex justify-center">
+          {!isProcessing && !message.startsWith("Downloading") && (
+            <button
+              type="submit"
+              className="inline-flex items-center px-8 py-4 border border-transparent text-lg font-bold rounded-lg shadow-lg text-white bg-black hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Download
+            </button>
+          )}
         </div>
       </form>
-      <div className="w-full bg-white rounded-full mt-4 h-3 relative overflow-hidden">
-        <div
-          className={`h-3 ${getBarClass()} rounded-full`}
-          style={{
-            width: `${progress}%`,
-            ...getBarStyle(),
-          }}
-        ></div>
-        {isProcessing && progress === 0 && (
-          <div
-            className={`absolute top-0 left-0 w-full h-full bg-blue-300 rounded-full`}
-            style={getAnimationStyle()}
-          ></div>
-        )}
-      </div>
+
       {showConfetti && (
         <div className="fixed top-0 left-0 w-full h-full z-50">
           <Confetti
