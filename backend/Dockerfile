@@ -26,14 +26,14 @@ RUN apk add --no-cache \
     ffmpeg
 
 # Create a virtual environment for Python
-RUN python3 -m venv /venv
+RUN python3 -m venv venv
 
 # Activate the virtual environment and install yt-dlp
-RUN /venv/bin/pip install --upgrade pip && \
-    /venv/bin/pip install yt-dlp
+RUN ./venv/bin/pip install --upgrade pip && \
+    ./venv/bin/pip install yt-dlp
 
 # Ensure ffmpeg is in the PATH
-ENV PATH="/usr/bin:/venv/bin:${PATH}"
+ENV PATH="/usr/bin:${PATH}"
 
 # Expose port 8080 to the outside world
 EXPOSE 8080
