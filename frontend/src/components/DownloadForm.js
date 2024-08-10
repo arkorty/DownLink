@@ -124,7 +124,8 @@ const DownloadForm = () => {
             >
               <option value="360p">Normal</option>
               <option value="480p">High</option>
-              <option value="720p">Highest</option>
+              <option value="720p">Super</option>
+              <option value="1080p">Ultra</option>
             </select>
           </div>
         </div>
