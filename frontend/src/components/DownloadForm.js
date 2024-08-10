@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import Confetti from "react-confetti";
@@ -8,11 +8,9 @@ const DownloadForm = () => {
   const [quality, setQuality] = useState("360p");
   const [message, setMessage] = useState("");
   const [progress, setProgress] = useState(0);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
-  const confettiRef = useRef(null);
 
-  // Validate if the URL is a YouTube domain
   const isValidYouTubeUrl = (url) => {
     const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
     return youtubeRegex.test(url);
@@ -29,9 +27,9 @@ const DownloadForm = () => {
       return;
     }
 
-    setMessage("Processing...");
     setProgress(0);
-    setIsProcessing(true);
+    setIsDownloading(true);
+    setMessage("Downloading...");
 
     try {
       const response = await axios.post(
@@ -43,7 +41,6 @@ const DownloadForm = () => {
             const total = progressEvent.total;
             const current = progressEvent.loaded;
             setProgress(Math.round((current / total) * 100));
-            setMessage("Downloading...");
           },
         },
       );
@@ -59,19 +56,19 @@ const DownloadForm = () => {
       link.click();
 
       setMessage("Download Complete");
-      setIsProcessing(false);
+      setIsDownloading(false);
       setShowConfetti(true);
     } catch (error) {
       setMessage("Download Failed");
       console.error(error);
-      setIsProcessing(false);
+      setIsDownloading(false);
     }
   };
 
   const getBarClass = () => {
-    if (message === "Download Complete") return "bg-green-500";
-    if (message === "Download Failed") return "bg-red-500";
-    return "bg-blue-500"; // Default color when not processing
+    if (message === "Download Complete") return "bg-green-400";
+    if (message === "Download Failed") return "bg-red-400";
+    return "bg-blue-500";
   };
 
   const getBarStyle = () => ({
@@ -79,7 +76,6 @@ const DownloadForm = () => {
   });
 
   const getAnimationStyle = () => {
-    // Hide the loading animation when progress is greater than 0
     return progress === 0 ? { animation: "loading 1.5s infinite" } : {};
   };
 
@@ -135,7 +131,7 @@ const DownloadForm = () => {
 
         <div
           className={`w-full bg-white rounded-lg mt-4 h-6 relative overflow-hidden ${
-            progress > 0 || (isProcessing && progress === 0)
+            progress > 0 || (isDownloading && progress === 0)
               ? "border border-gray-300"
               : ""
           }`}
@@ -165,7 +161,7 @@ const DownloadForm = () => {
         </div>
 
         <div className="flex justify-center">
-          {!isProcessing && !message.startsWith("Downloading") && (
+          {!isDownloading && !message.startsWith("Downloading") && (
             <button
               type="submit"
               className="relative inline-flex items-center px-8 py-4 border border-transparent text-lg font-bold rounded-lg text-white bg-gradient-to-r from-cyan-500 via-green-500 to-blue-500 hover:shadow-lg focus:outline-none animate-gradient"
