@@ -88,26 +88,13 @@ func downloadVideo(c echo.Context) error {
     }()
 
     uid := uuid.New().String()
-    videoPath := filepath.Join(tmpDir, fmt.Sprintf("video_%s.mp4", uid))
-    audioPath := filepath.Join(tmpDir, fmt.Sprintf("audio_%s.m4a", uid))
     outputPath := filepath.Join(tmpDir, fmt.Sprintf("output_%s.mp4", uid))
 
-    // Download video
-    cmdVideo := exec.Command("./venv/bin/python3", "-m", "yt_dlp", "--cookies", "cookies.txt", "-f", videoFormat, "-o", videoPath, req.URL)
-    if err := cmdVideo.Run(); err != nil {
-        return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to download video: %v", err))
-    }
-
-    // Download audio
-    cmdAudio := exec.Command("./venv/bin/python3", "-m", "yt_dlp", "--cookies", "cookies.txt", "-f", audioFormat, "-o", audioPath, req.URL)
-    if err := cmdAudio.Run(); err != nil {
-        return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to download audio: %v", err))
-    }
-
-    // Combine video and audio using ffmpeg
-    cmdMerge := exec.Command("ffmpeg", "-i", videoPath, "-i", audioPath, "-c", "copy", outputPath)
-    if err := cmdMerge.Run(); err != nil {
-        return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to merge video and audio: %v", err))
+    // Download video and audio combined
+    combinedFormat := fmt.Sprintf("%s+%s", videoFormat, audioFormat)
+    cmdDownload := exec.Command("./venv/bin/python3", "-m", "yt_dlp", "--cookies", "cookies.txt", "-f", combinedFormat, "-o", outputPath, req.URL)
+    if err := cmdDownload.Run(); err != nil {
+        return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to download video and audio: %v", err))
     }
 
     // Serve the file with appropriate headers
