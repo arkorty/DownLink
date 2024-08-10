@@ -18,11 +18,7 @@ RUN go build -o main .
 
 RUN apk add --no-cache \
     python3 \
-    python3-dev \
     py3-pip \
-    build-base \
-    git \
-    wget \
     ffmpeg
 
 # Create a virtual environment for Python
