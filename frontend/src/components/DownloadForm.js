@@ -143,9 +143,9 @@ const DownloadForm = () => {
               ...getBarStyle(),
             }}
           ></div>
-          {isProcessing && progress === 0 && (
+          {isDownloading && progress === 0 && (
             <div
-              className={`absolute top-0 left-0 w-full h-full bg-blue-500 rounded-full`}
+              className={`absolute top-0 left-0 w-full h-full bg-blue-400 rounded-full`}
               style={getAnimationStyle()}
             ></div>
           )}
