@@ -176,9 +176,14 @@ const DownloadForm = () => {
       {showConfetti && (
         <div className="fixed top-0 left-0 w-full h-full z-50">
           <Confetti
-            ref={confettiRef}
             width={window.innerWidth}
             height={window.innerHeight}
+            recycle={false}
+            numberOfPieces={200}
+            gravity={0.2}
+            initialVelocityY={10}
+            fadeOut={true}
+            fadeOutDuration={2000}
           />
         </div>
       )}
