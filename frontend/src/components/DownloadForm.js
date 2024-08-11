@@ -68,7 +68,7 @@ const DownloadForm = () => {
   const getBarClass = () => {
     if (message === "Download Complete") return "bg-green-400";
     if (message === "Download Failed") return "bg-red-400";
-    return "bg-blue-500";
+    return "bg-blue-400";
   };
 
   const getBarStyle = () => ({
@@ -96,7 +96,7 @@ const DownloadForm = () => {
           <div className="flex-grow">
             <label
               htmlFor="url"
-              className="block text-sm font-medium text-gray-700 text-left"
+              className="block text-sm font-medium text-gray-300 text-left"
             >
               Video URL
             </label>
@@ -112,7 +112,7 @@ const DownloadForm = () => {
           <div className="flex-shrink-0 w-18">
             <label
               htmlFor="quality"
-              className="block text-sm font-medium text-gray-700 text-left"
+              className="block text-sm font-medium text-gray-300 text-left"
             >
               Quality
             </label>
@@ -122,19 +122,17 @@ const DownloadForm = () => {
               onChange={(e) => setQuality(e.target.value)}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             >
-              <option value="360p">Normal</option>
+              <option value="360p">Standard</option>
               <option value="480p">High</option>
-              <option value="720p">Super</option>
-              <option value="1080p">Ultra</option>
+              <option value="720p">Ultra</option>
             </select>
           </div>
         </div>
-
         <div
-          className={`w-full bg-white rounded-lg mt-4 h-6 relative overflow-hidden ${
+          className={`w-full rounded-full mt-4 h-6 relative overflow-hidden ${
             progress > 0 || (isDownloading && progress === 0)
-              ? "border border-gray-300"
-              : ""
+              ? "bg-white bg-opacity-60"
+              : "bg-inherit"
           }`}
         >
           <div
@@ -160,18 +158,17 @@ const DownloadForm = () => {
             </span>
           </div>
         </div>
-
         <div className="flex justify-center">
           {!isDownloading && !message.startsWith("Downloading") && (
             <button
               type="submit"
-              className="relative inline-flex items-center px-8 py-4 border border-transparent text-lg font-bold rounded-lg text-white bg-gradient-to-r from-cyan-500 via-green-500 to-blue-500 hover:shadow-lg focus:outline-none animate-gradient"
+              className="relative inline-flex items-center px-8 py-4 text-lg font-bold rounded-xl text-white bg-black bg-opacity-60 hover:shadow-lg focus:outline-none transition-all duration-300"
             >
-              <span className="absolute inset-0 bg-black opacity-0 transition-opacity duration-300 ease-in-out active:opacity-40 rounded-lg"></span>
+              <span className="absolute inset-0 bg-black opacity-0 transition-opacity duration-300 ease-in-out active:opacity-40 rounded-xl"></span>
               Download
             </button>
           )}
-        </div>
+        </div>{" "}
       </form>
 
       {showConfetti && (

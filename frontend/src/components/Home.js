@@ -10,17 +10,19 @@ const Home = () => {
         <h1 className="text-white mb-4 text-4xl sm:text-5xl lg:text-6xl font-extrabold">
           <TypeAnimation
             sequence={[
-              "Easy To Use!",
+              "From YouTube!",
+              1200,
+              "Download Now!",
               1200,
               "HD Quality!",
               1200,
-              "Download YouTube Videos!",
+              "DownLink!",
               1200,
             ]}
             wrapper="span"
             speed={30}
             repeat={Infinity}
-            className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-500"
+            className="text-transparent bg-clip-text bg-white bg-opacity-80"
           />
         </h1>
         <DownloadForm />
