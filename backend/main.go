@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -20,47 +19,6 @@ type VideoDownloadRequest struct {
 	Quality string `json:"quality"`
 }
 
-// getBestFormat fetches and returns the best format for the given quality
-func getBestFormats(url string, targetResolution string) (string, string, error) {
-    log.Printf("Getting best formats for URL: %s, target resolution: %s", url, targetResolution)
-
-    cmd := exec.Command("./venv/bin/python3", "-m", "yt_dlp", "--cookies", "cookies.txt", "--list-formats", url)
-    output, err := cmd.CombinedOutput()
-    if err != nil {
-        return "", "", fmt.Errorf("failed to list formats: %v\nOutput: %s", err, string(output))
-    }
-
-    lines := strings.Split(strings.TrimSpace(string(output)), "\n")
-    var bestVideoFormat, bestAudioFormat string
-    targetHeight := strings.TrimSuffix(targetResolution, "p")
-
-    for _, line := range lines {
-        fields := strings.Fields(line)
-        if len(fields) < 3 {
-            continue
-        }
-
-        if strings.Contains(line, targetHeight) && strings.Contains(line, "mp4") && bestVideoFormat == "" {
-            bestVideoFormat = fields[0]
-        }
-
-        if strings.Contains(line, "audio only") && strings.Contains(line, "m4a") && bestAudioFormat == "" {
-            bestAudioFormat = fields[0]
-        }
-
-        if bestVideoFormat != "" && bestAudioFormat != "" {
-            break
-        }
-    }
-
-    if bestVideoFormat == "" || bestAudioFormat == "" {
-        return "", "", fmt.Errorf("no suitable formats found for resolution: %s", targetResolution)
-    }
-
-    log.Printf("Selected video format: %s, audio format: %s", bestVideoFormat, bestAudioFormat)
-    return bestVideoFormat, bestAudioFormat, nil
-}
-
 func downloadVideo(c echo.Context) error {
     req := new(VideoDownloadRequest)
     if err := c.Bind(req); err != nil {
@@ -68,12 +26,6 @@ func downloadVideo(c echo.Context) error {
     }
     if req.URL == "" || req.Quality == "" {
         return echo.NewHTTPError(http.StatusBadRequest, "URL and Quality are required")
-    }
-
-    // Get the best video and audio formats
-    videoFormat, audioFormat, err := getBestFormats(req.URL, req.Quality)
-    if err != nil {
-        return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to get best formats: %v", err))
     }
 
     // Create a temporary directory for downloading files
@@ -91,8 +43,9 @@ func downloadVideo(c echo.Context) error {
     outputPath := filepath.Join(tmpDir, fmt.Sprintf("output_%s.mp4", uid))
 
     // Download video and audio combined
-    combinedFormat := fmt.Sprintf("%s+%s", videoFormat, audioFormat)
-    cmdDownload := exec.Command("./venv/bin/python3", "-m", "yt_dlp", "--cookies", "cookies.txt", "-f", combinedFormat, "-o", outputPath, req.URL)
+    quality := req.Quality[:len(req.Quality) - 1]
+    mergedFormat := fmt.Sprintf("bestvideo[height<=%s]+bestaudio/best[height<=%s]", quality, quality)
+    cmdDownload := exec.Command("./venv/bin/python3", "-m", "yt_dlp", "--cookies", "cookies.txt", "-f", mergedFormat, "--merge-output-format", "mp4", "-o", outputPath, req.URL)
     if err := cmdDownload.Run(); err != nil {
         return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to download video and audio: %v", err))
     }
