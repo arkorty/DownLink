@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import Confetti from "react-confetti";
+import Notification from "./Notification";
 
 const DownloadForm = () => {
   const [url, setUrl] = useState("");
@@ -10,6 +11,7 @@ const DownloadForm = () => {
   const [progress, setProgress] = useState(0);
   const [isDownloading, setIsDownloading] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [notification, setNotification] = useState(null);
 
   const isValidYouTubeUrl = (url) => {
     const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
@@ -20,10 +22,10 @@ const DownloadForm = () => {
     e.preventDefault();
 
     if (!url) {
-      setMessage("maybe enter an URL first");
+      setNotification("Maybe enter an URL first");
       return;
     } else if (!isValidYouTubeUrl(url)) {
-      setMessage("doesn't look like YouTube to me");
+      setNotification("Doesn't look like YouTube to me");
       return;
     }
 
@@ -162,13 +164,13 @@ const DownloadForm = () => {
           {!isDownloading && !message.startsWith("Downloading") && (
             <button
               type="submit"
-              className="relative inline-flex items-center px-8 py-4 text-lg font-bold rounded-xl text-white bg-black bg-opacity-60 hover:shadow-lg focus:outline-none transition-all duration-300"
+              className="relative inline-flex items-center px-10 py-6 text-2xl font-bold rounded-2xl text-black bg-white bg-opacity-60 hover:shadow-lg focus:outline-none transition-all duration-300"
             >
               <span className="absolute inset-0 bg-black opacity-0 transition-opacity duration-300 ease-in-out active:opacity-40 rounded-xl"></span>
               Download
             </button>
           )}
-        </div>{" "}
+        </div>
       </form>
 
       {showConfetti && (
@@ -184,6 +186,12 @@ const DownloadForm = () => {
             fadeOutDuration={2000}
           />
         </div>
+      )}
+      {notification && (
+        <Notification
+          message={notification}
+          onClose={() => setNotification(null)}
+        />
       )}
       <style jsx>{`
         @keyframes loading {
