@@ -17,7 +17,7 @@ const Background = () => {
             value: "#2c2c2c",
           },
         },
-        fpsLimit: 120,
+        fpsLimit: 60,
         interactivity: {
           events: {
             onClick: {
@@ -32,6 +32,10 @@ const Background = () => {
           },
           modes: {
             push: {
+              quantity: 4,
+              limit: 20,
+            },
+            remove: {
               quantity: 4,
             },
             repulse: {
