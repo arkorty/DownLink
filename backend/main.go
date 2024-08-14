@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+    "strings"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -44,8 +45,19 @@ func downloadVideo(c echo.Context) error {
 
     // Download video and audio combined
     quality := req.Quality[:len(req.Quality) - 1]
-    mergedFormat := fmt.Sprintf("bestvideo[height<=%s]+bestaudio/best[height<=%s]", quality, quality)
-    cmdDownload := exec.Command("./venv/bin/python3", "-m", "yt_dlp", "--cookies", "cookies.txt", "-f", mergedFormat, "--merge-output-format", "mp4", "-o", outputPath, req.URL)
+
+    var mergedFormat string
+    var cookies string
+    
+    if strings.Contains(req.URL, "instagram.com/") {
+        mergedFormat = fmt.Sprintf("bestvideo[width<=%s]+bestaudio/best", quality)
+        cookies = "cookies_i.txt"
+    } else {
+        mergedFormat = fmt.Sprintf("bestvideo[height<=%s]+bestaudio/best[height<=%s]", quality, quality)
+        cookies = "cookies_y.txt"
+    }
+
+    cmdDownload := exec.Command("./venv/bin/python3", "-m", "yt_dlp", "--cookies", cookies, "-f", mergedFormat, "--merge-output-format", "mp4", "-o", outputPath, req.URL)
     if err := cmdDownload.Run(); err != nil {
         return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to download video and audio: %v", err))
     }

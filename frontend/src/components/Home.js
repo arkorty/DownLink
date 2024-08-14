@@ -12,6 +12,8 @@ const Home = () => {
             sequence={[
               "From YouTube!",
               1200,
+              "And Instagram",
+              1200,
               "Download Now!",
               1200,
               "HD Quality!",

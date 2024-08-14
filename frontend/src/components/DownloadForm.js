@@ -13,9 +13,10 @@ const DownloadForm = () => {
   const [showConfetti, setShowConfetti] = useState(false);
   const [notification, setNotification] = useState(null);
 
-  const isValidYouTubeUrl = (url) => {
-    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
-    return youtubeRegex.test(url);
+  const isValidUrl = (url) => {
+    const legalDomains =
+      /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|instagram\.com)\/.+$/;
+    return legalDomains.test(url);
   };
 
   const handleDownload = async (e) => {
@@ -24,8 +25,8 @@ const DownloadForm = () => {
     if (!url) {
       setNotification("Maybe enter an URL first");
       return;
-    } else if (!isValidYouTubeUrl(url)) {
-      setNotification("Doesn't look like YouTube to me");
+    } else if (!isValidUrl(url)) {
+      setNotification("Doesn't look like a valid URL to me");
       return;
     }
 
