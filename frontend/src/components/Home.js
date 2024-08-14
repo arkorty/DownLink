@@ -6,21 +6,21 @@ import { TypeAnimation } from "react-type-animation";
 
 const Home = () => {
   return (
-    <div className="relative z-10 pt-20">
+    <div className="relative z-10 sm: pt-32 md: pt-64 lg:pt-96">
       <div className="max-w-4xl mx-auto text-center">
-        <h1 className="text-white mb-4 text-4xl sm:text-5xl lg:text-6xl xl:text-8xl font-extrabold">
+        <h1 className="text-white mb-4 text-4xl sm:text-5xl lg:text-6xl font-extrabold">
           <TypeAnimation
             sequence={[
               "From YouTube!",
-              1000,
+              800,
               "And Instagram!",
-              1000,
+              800,
               "Download Now!",
-              1000,
+              800,
               "HD Quality!",
-              1000,
+              800,
               "DownLink!",
-              1000,
+              800,
             ]}
             wrapper="span"
             speed={30}

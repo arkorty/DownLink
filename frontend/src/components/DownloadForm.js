@@ -93,7 +93,7 @@ const DownloadForm = () => {
   }, [showConfetti]);
 
   return (
-    <div className="p-4 relative">
+    <div className="md: p-4 mt-12 relative">
       <form onSubmit={handleDownload} className="space-y-4">
         <div className="flex gap-2">
           <div className="flex-grow">
@@ -165,9 +165,9 @@ const DownloadForm = () => {
           {!isDownloading && !message.startsWith("Downloading") && (
             <button
               type="submit"
-              className="relative inline-flex items-center px-10 py-6 text-2xl font-bold rounded-2xl text-black bg-white bg-opacity-60 hover:shadow-lg focus:outline-none transition-all duration-300"
+              className="relative inline-flex items-center px-10 py-6 text-2xl font-bold rounded-2xl text-white bg-black bg-opacity-60 border border-white hover:shadow-lg focus:outline-none transition-all duration-300"
             >
-              <span className="absolute inset-0 bg-black opacity-0 transition-opacity duration-300 ease-in-out active:opacity-40 rounded-xl"></span>
+              <span className="absolute inset-0 bg-black opacity-0 transition-opacity duration-300 ease-in-out active:opacity-40 rounded-2xl"></span>
               Download
             </button>
           )}
