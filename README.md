@@ -2,7 +2,7 @@
 
 # DownLink
 
-DownLink is a web application that allows users to download YouTube videos from URLs using a simple interface. This repository contains the code for both the frontend and backend of the application.
+DownLink is a web application that allows users to download videos from YouTube and Instagram via a simple interface. This repository contains the code for both the frontend and backend of the application.
 
 ## Table of Contents
 
@@ -19,7 +19,7 @@ DownLink is a web application that allows users to download YouTube videos from 
 ## Features
 
 - Download YouTube videos from a provided URL.
-- Choose video quality (480p, 720p, 1080p) before downloading.
+- Choose video quality (360p, 480p, 720p) before downloading.
 - Responsive UI built with React and Tailwind CSS.
 - Backend API built with Go and the Echo framework.
 - Utilizes yt-dlp for downloading and ffmpeg for converting files.
@@ -50,7 +50,7 @@ DownLink is a web application that allows users to download YouTube videos from 
 
 2. **Set up environment variables:**
 
-   Create a `.env` file in the root of the frontend directory and add the following:
+   Create a `.env.local` file in the root of the frontend directory and add the following:
 
    ```env
    REACT_APP_BACKEND_URL=http://localhost:8080
@@ -59,7 +59,7 @@ DownLink is a web application that allows users to download YouTube videos from 
 3. **Run the application using Docker Compose:**
 
    ```bash
-   docker-compose up --build
+   docker compose up --build
    ```
 
    This command will build and start the Docker containers for the frontend and backend.
