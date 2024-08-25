@@ -3,6 +3,14 @@ import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import Confetti from "react-confetti";
 import Notification from "./Notification";
+import {
+  TextField,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+  CircularProgress,
+} from "@mui/material";
 
 const DownloadForm = () => {
   const [url, setUrl] = useState("");
@@ -71,7 +79,7 @@ const DownloadForm = () => {
   const getBarClass = () => {
     if (message === "Download Complete") return "bg-green-400";
     if (message === "Download Failed") return "bg-red-400";
-    return "bg-blue-400";
+    return "bg-purple-600";
   };
 
   const getBarStyle = () => ({
@@ -93,42 +101,63 @@ const DownloadForm = () => {
   }, [showConfetti]);
 
   return (
-    <div className="md: p-4 mt-12 relative">
+    <div className="p-6 relative">
       <form onSubmit={handleDownload} className="space-y-4">
         <div className="flex gap-2">
           <div className="flex-grow">
-            <label
-              htmlFor="url"
-              className="block text-sm font-medium text-gray-300 text-left"
-            >
-              Video URL
-            </label>
-            <input
-              type="text"
-              id="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-zinc-800 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-300"
-              placeholder="Enter video URL"
-            />
+            <FormControl fullWidth variant="outlined" size="small">
+              <TextField
+                id="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                label="Video URL"
+                placeholder="Enter video URL"
+                variant="outlined"
+                size="small"
+                InputProps={{
+                  style: {
+                    color: "#fff",
+                    backgroundColor: "#1f2937",
+                  },
+                }}
+                InputLabelProps={{
+                  style: { color: "#9ca3af" },
+                }}
+              />
+            </FormControl>
           </div>
           <div className="flex-shrink-0 w-18">
-            <label
-              htmlFor="quality"
-              className="block text-sm font-medium text-gray-300 text-left"
+            <FormControl
+              fullWidth
+              variant="outlined"
+              size="small"
+              sx={{ minWidth: 112 }}
             >
-              Quality
-            </label>
-            <select
-              id="quality"
-              value={quality}
-              onChange={(e) => setQuality(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-zinc-800 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-300"
-            >
-              <option value="360p">Standard</option>
-              <option value="480p">High</option>
-              <option value="720p">Ultra</option>
-            </select>
+              <InputLabel htmlFor="quality" sx={{ color: "#9ca3af" }}>
+                Quality
+              </InputLabel>
+              <Select
+                id="quality"
+                value={quality}
+                onChange={(e) => setQuality(e.target.value)}
+                label="Quality"
+                variant="outlined"
+                size="small"
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      backgroundColor: "#1f2937",
+                      color: "#fff",
+                    },
+                  },
+                }}
+                sx={{ backgroundColor: "#1f2937", color: "#fff" }}
+              >
+                <MenuItem value="360p">Standard</MenuItem>
+                <MenuItem value="480p">High</MenuItem>
+                <MenuItem value="720p">Ultra</MenuItem>
+              </Select>
+            </FormControl>
           </div>
         </div>
         <div
@@ -147,7 +176,7 @@ const DownloadForm = () => {
           ></div>
           {isDownloading && progress === 0 && (
             <div
-              className={`absolute top-0 left-0 w-full h-full bg-blue-400 rounded-full`}
+              className={`absolute top-0 left-0 w-full h-full bg-purple-400 rounded-full`}
               style={getAnimationStyle()}
             ></div>
           )}
@@ -165,10 +194,14 @@ const DownloadForm = () => {
           {!isDownloading && !message.startsWith("Downloading") && (
             <button
               type="submit"
-              className="relative inline-flex items-center px-10 py-6 text-2xl font-bold rounded-2xl text-white bg-black bg-opacity-60 border border-white hover:shadow-lg focus:outline-none transition-all duration-300"
+              className="relative inline-flex items-center px-10 py-6 text-2xl font-bold rounded-2xl text-white bg-purple-900 bg-opacity-60 focus:outline-none transition-all duration-300"
             >
               <span className="absolute inset-0 bg-black opacity-0 transition-opacity duration-300 ease-in-out active:opacity-40 rounded-2xl"></span>
-              Download
+              {isDownloading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "Download"
+              )}
             </button>
           )}
         </div>
@@ -194,33 +227,6 @@ const DownloadForm = () => {
           onClose={() => setNotification(null)}
         />
       )}
-      <style jsx>{`
-        @keyframes loading {
-          0% {
-            transform: translateX(-100%);
-          }
-          100% {
-            transform: translateX(100%);
-          }
-        }
-
-        @keyframes gradientFlow {
-          0% {
-            background-position: 0% 0%;
-          }
-          50% {
-            background-position: 100% 100%;
-          }
-          100% {
-            background-position: 0% 0%;
-          }
-        }
-
-        .animate-gradient {
-          background-size: 300% 300%;
-          animation: gradientFlow 15s ease infinite;
-        }
-      `}</style>
     </div>
   );
 };

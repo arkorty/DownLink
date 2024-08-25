@@ -2,6 +2,12 @@ import React from "react";
 import Particles from "react-particles";
 import { loadSlim } from "tsparticles-slim";
 
+const colors = {
+  background: "191825",
+  particle: "FFA3FD",
+  link: "865DFF",
+};
+
 const Background = () => {
   const particlesInit = async (engine) => {
     await loadSlim(engine);
@@ -14,16 +20,12 @@ const Background = () => {
       options={{
         background: {
           color: {
-            value: "#2c2c2c",
+            value: colors.background,
           },
         },
         fpsLimit: 60,
         interactivity: {
           events: {
-            onClick: {
-              enable: true,
-              mode: "push",
-            },
             onHover: {
               enable: true,
               mode: "repulse",
@@ -31,26 +33,19 @@ const Background = () => {
             resize: true,
           },
           modes: {
-            push: {
-              quantity: 4,
-              limit: 20,
-            },
-            remove: {
-              quantity: 4,
-            },
             repulse: {
               distance: 200,
               duration: 0.8,
-              speed: 0.03,
+              speed: 0.05,
             },
           },
         },
         particles: {
           color: {
-            value: "#d0d0d0",
+            value: colors.particle,
           },
           links: {
-            color: "#a0a0a0",
+            color: colors.link,
             distance: 150,
             enable: true,
             opacity: 0.5,
