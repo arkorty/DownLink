@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://downlink.webark.in"),
   title: "DownLink",
   description: "Download videos from YouTube and Instagram with ease.",
   keywords: [

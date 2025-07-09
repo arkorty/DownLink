@@ -15,8 +15,6 @@ import {
   Download,
   Link,
   Loader2,
-  CheckCircle,
-  XCircle,
   Activity,
   SlidersHorizontal,
 } from "lucide-react";
@@ -27,10 +25,6 @@ export default function HomePage() {
   const [videoUrl, setVideoUrl] = useState("");
   const [quality, setQuality] = useState("");
   const [isDownloading, setIsDownloading] = useState(false);
-  const [status, setStatus] = useState<{
-    type: "success" | "error" | "info" | null;
-    message: string;
-  }>({ type: null, message: "" });
 
   const handleDownload = async () => {
     if (!videoUrl.trim()) {
@@ -87,7 +81,7 @@ export default function HomePage() {
         const errorData = await response.json();
         toast.error(errorData.error || "Download failed");
       }
-    } catch (error) {
+    } catch {
       toast.error("Network error. Please try again.");
     } finally {
       setIsDownloading(false);
@@ -102,7 +96,7 @@ export default function HomePage() {
       } else {
         toast.error("Service health check failed");
       }
-    } catch (error) {
+    } catch {
       toast.error("Unable to connect to service");
     }
   };

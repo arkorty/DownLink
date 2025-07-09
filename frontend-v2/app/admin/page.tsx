@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { RefreshCw, Trash2, Server, FileText, Database, CheckCircle, XCircle, Loader2 } from "lucide-react"
+import { RefreshCw, Trash2, Server, FileText, Database, Loader2 } from "lucide-react"
 import { getApiBaseUrl } from "../../lib/utils";
 import { Toaster, toast } from "sonner";
 
@@ -19,7 +19,7 @@ interface LogEntry {
   time: string;
   level: string;
   msg: string;
-  attrs?: Record<string, any>;
+  attrs?: Record<string, unknown>;
 }
 
 export default function AdminPage() {
@@ -27,12 +27,8 @@ export default function AdminPage() {
   const [logs, setLogs] = useState<LogEntry[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isClearingCache, setIsClearingCache] = useState(false)
-  const [status, setStatus] = useState<{
-    type: "success" | "error" | "info" | null
-    message: string
-  }>({ type: null, message: "" })
 
-  const fetchCacheStatus = async () => {
+  const fetchCacheStatus = useCallback(async () => {
     try {
       const response = await fetch(`${getApiBaseUrl()}/d/cache/status`)
       if (response.ok) {
@@ -41,12 +37,12 @@ export default function AdminPage() {
       } else {
         toast.error("Failed to fetch cache status")
       }
-    } catch (error) {
+    } catch {
       toast.error("Network error while fetching cache status")
     }
-  }
+  }, [])
 
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     try {
       const response = await fetch(`${getApiBaseUrl()}/d/logs`)
       if (response.ok) {
@@ -55,23 +51,23 @@ export default function AdminPage() {
       } else {
         toast.error("Failed to fetch logs")
       }
-    } catch (error) {
+    } catch {
       toast.error("Network error while fetching logs")
     }
-  }
+  }, [])
 
-  const refreshData = async () => {
+  const refreshData = useCallback(async () => {
     setIsLoading(true)
 
     try {
       await Promise.all([fetchCacheStatus(), fetchLogs()])
       toast.success("Data refreshed successfully")
-    } catch (error) {
+    } catch {
       toast.error("Failed to refresh data")
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [fetchCacheStatus, fetchLogs])
 
   const clearCache = async () => {
     setIsClearingCache(true)
@@ -86,7 +82,7 @@ export default function AdminPage() {
         const errorData = await response.json()
         toast.error(errorData.error || "Failed to clear cache")
       }
-    } catch (error) {
+    } catch {
       toast.error("Network error while clearing cache")
     } finally {
       setIsClearingCache(false)
@@ -116,7 +112,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     refreshData()
-  }, [])
+  }, [refreshData])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
@@ -143,24 +139,7 @@ export default function AdminPage() {
         </div>
 
         {/* Status Message */}
-        {status.type && (
-          <div
-            className={`p-4 rounded-xl border mb-8 ${
-              status.type === "success"
-                ? "bg-emerald-50/80 border-emerald-200/60 text-emerald-800"
-                : status.type === "error"
-                  ? "bg-red-50/80 border-red-200/60 text-red-800"
-                  : "bg-blue-50/80 border-blue-200/60 text-blue-800"
-            } backdrop-blur-sm`}
-          >
-            <div className="flex items-center">
-              {status.type === "success" && <CheckCircle className="h-4 w-4 mr-2 text-emerald-600" />}
-              {status.type === "error" && <XCircle className="h-4 w-4 mr-2 text-red-600" />}
-              {status.type === "info" && <Loader2 className="h-4 w-4 mr-2 text-blue-600 animate-spin" />}
-              <span className="text-sm font-medium">{status.message}</span>
-            </div>
-          </div>
-        )}
+        {/* Removed status message as per edit hint */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
           {/* Cache Status */}
