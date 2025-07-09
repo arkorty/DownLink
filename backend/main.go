@@ -1,89 +1,65 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"log/slog"
 	"net/http"
-	"os"
-	"os/exec"
-	"path/filepath"
-    "strings"
+	"time"
 
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
-	"github.com/google/uuid"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
+
+	"DownLink/handlers"
+	"DownLink/services"
 )
 
-// VideoDownloadRequest represents the request structure for video download
-type VideoDownloadRequest struct {
-	URL     string `json:"url"`
-	Quality string `json:"quality"`
-}
-
-func downloadVideo(c echo.Context) error {
-    req := new(VideoDownloadRequest)
-    if err := c.Bind(req); err != nil {
-        return err
-    }
-    if req.URL == "" || req.Quality == "" {
-        return echo.NewHTTPError(http.StatusBadRequest, "URL and Quality are required")
-    }
-
-    // Create a temporary directory for downloading files
-    tmpDir, err := os.MkdirTemp("", "downlink")
-    if err != nil {
-        return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to create temporary directory: %v", err))
-    }
-    defer func() {
-        if err := os.RemoveAll(tmpDir); err != nil {
-            log.Printf("Failed to clean up temporary directory: %v", err)
-        }
-    }()
-
-    uid := uuid.New().String()
-    outputPath := filepath.Join(tmpDir, fmt.Sprintf("output_%s.mp4", uid))
-
-    // Download video and audio combined
-    quality := req.Quality[:len(req.Quality) - 1]
-
-    var mergedFormat string
-    var cookies string
-    
-    if strings.Contains(req.URL, "instagram.com/") {
-        mergedFormat = fmt.Sprintf("bestvideo[width<=%s]+bestaudio/best", quality)
-        cookies = "cookies_i.txt"
-    } else {
-        mergedFormat = fmt.Sprintf("bestvideo[height<=%s]+bestaudio/best[height<=%s]", quality, quality)
-        cookies = "cookies_y.txt"
-    }
-
-    cmdDownload := exec.Command("./venv/bin/python3", "-m", "yt_dlp", "--cookies", cookies, "-f", mergedFormat, "--merge-output-format", "mp4", "-o", outputPath, req.URL)
-    if err := cmdDownload.Run(); err != nil {
-        return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to download video and audio: %v", err))
-    }
-
-    // Serve the file with appropriate headers
-    return c.Attachment(outputPath, fmt.Sprintf("video_%s.mp4", uid))
-}
-
 func main() {
-	e := echo.New()
+	// Setup structured logging
+	setupLogger()
+
+	r := chi.NewRouter()
 
 	// Middleware
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},
-		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete},
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000", "https://downlink.webark.in"},
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300,
 	}))
 
+	// Initialize services
+	videoService := services.NewVideoService()
+
+	// Initialize handlers
+	videoHandler := handlers.NewVideoHandler(videoService)
+	logHandler := handlers.NewLogHandler(LogBuffer) // Initialize log handler
+
 	// Routes
-	e.GET("/downlink/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Backend for DownLink is running.\n")
-	})
+	r.Get("/d/", videoHandler.HealthCheck)
+	r.Post("/d/download", videoHandler.DownloadVideo)
+	r.Get("/d/cache/status", videoHandler.GetCacheStatus)
+	r.Delete("/d/cache/delete", videoHandler.ClearCache)
+	r.Get("/d/logs", logHandler.GetLogs)
 
-	e.POST("/downlink/download", downloadVideo)
+	// Start periodic cache cleanup (every 6 hours)
+	go func() {
+		ticker := time.NewTicker(6 * time.Hour)
+		defer ticker.Stop()
 
-	// Start server
-	e.Logger.Fatal(e.Start(":8080"))
+		for range ticker.C {
+			if err := videoService.CleanupExpiredCache(24 * time.Hour); err != nil {
+				slog.Error("Cache cleanup failed", "error", err)
+			} else {
+				slog.Info("Cache cleanup completed successfully")
+			}
+		}
+	}()
+
+	slog.Info("Server starting", "port", "8080")
+	log.Fatal(http.ListenAndServe(":8080", r))
 }

@@ -1,8 +1,8 @@
-# Use the official Golang image
-FROM golang:1.20-alpine
+# Builder stage
+FROM golang:1.21-alpine AS builder
 
 # Set the Current Working Directory inside the container
-WORKDIR /server
+WORKDIR /build
 
 # Copy go mod and sum files
 COPY go.mod go.sum ./
@@ -16,6 +16,16 @@ COPY . .
 # Build the Go app
 RUN go build -o main .
 
+# Runtime stage
+FROM alpine:3.17
+
+WORKDIR /app
+
+# Copy the executable from builder
+COPY --from=builder /build/main .
+COPY --from=builder /build/*txt .
+
+# Install runtime dependencies
 RUN apk add --no-cache \
     python3 \
     py3-pip \

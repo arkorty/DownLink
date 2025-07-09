@@ -36,4 +36,8 @@
 Thumbs.db
 
 # Cookies
-cookies*.txt
+instagram.txt
+youtube.txt
+
+# Cache directory for downloaded videos
+cache/
