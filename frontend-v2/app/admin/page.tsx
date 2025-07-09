@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { RefreshCw, Trash2, Server, FileText, Database, Loader2 } from "lucide-react"
 import { getApiBaseUrl } from "../../lib/utils";
 import { Toaster, toast } from "sonner";
@@ -212,19 +212,27 @@ export default function AdminPage() {
                 <div className="font-semibold text-base sm:text-lg">Logs</div>
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-0">
-              <ScrollArea className="h-64 sm:h-80 md:h-96">
+            {/* CardContent is now overflow-hidden and w-full to constrain children */}
+            <CardContent className="pt-0 overflow-hidden w-full">
+              {/* ScrollArea is w-full, min-w-0, max-w-full to prevent overflow */}
+              <ScrollArea className="h-64 sm:h-80 md:h-96 w-full min-w-0 max-w-full">
+                <ScrollBar orientation="horizontal" />
                 {logs.length > 0 ? (
-                  <ul className="space-y-2">
+                  // Log list is w-full, min-w-0, max-w-full
+                  <ul className="space-y-2 w-full min-w-0 max-w-full">
                     {logs.map((log, idx) => (
-                      <li key={idx} className={`p-3 rounded-lg border ${getLogLevelColor(log.level)}`}> 
-                        <div className="flex items-center space-x-2">
-                          <span className="font-mono text-xs text-slate-500">{new Date(log.time).toLocaleString()}</span>
-                          <span className="font-semibold text-xs uppercase">{log.level}</span>
+                      // Each log entry is w-full, min-w-0, max-w-full
+                      <li key={idx} className={`p-3 rounded-lg border ${getLogLevelColor(log.level)} w-full min-w-0 max-w-full`}>
+                        {/* Header row: flex with min-w-0 to allow shrinking */}
+                        <div className="flex items-center space-x-2 min-w-0">
+                          <span className="font-mono text-xs text-slate-500 flex-shrink-0">{new Date(log.time).toLocaleString()}</span>
+                          <span className="font-semibold text-xs uppercase flex-shrink-0">{log.level}</span>
                         </div>
-                        <div className="mt-1 text-sm text-slate-800 break-words whitespace-pre-line">{log.msg}</div>
+                        {/* Log message: wraps, never overflows */}
+                        <div className="mt-1 text-sm text-slate-800 break-words whitespace-pre-line w-full min-w-0 max-w-full">{log.msg}</div>
+                        {/* JSON attributes: now wraps, no horizontal scroll */}
                         {log.attrs && (
-                          <pre className="mt-1 text-xs text-slate-600 bg-slate-100 rounded p-2 overflow-x-auto max-w-full break-words whitespace-pre-wrap">{JSON.stringify(log.attrs, null, 2)}</pre>
+                          <pre className="mt-1 text-xs text-slate-600 bg-slate-100 rounded p-2 w-full max-w-full whitespace-pre-wrap break-words break-all">{JSON.stringify(log.attrs, null, 2)}</pre>
                         )}
                       </li>
                     ))}
